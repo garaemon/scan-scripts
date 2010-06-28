@@ -1,0 +1,29 @@
+#!/usr/bin/env python
+"""
+usage:
+ ./convert-to-tiff DIR suffix
+"""
+
+import sys
+import glob
+import subprocess
+import re
+from progressbar import *
+
+widgets = ["progress:", Percentage(), Bar()]
+
+def proc(file, bar, suffix):
+    to = re.sub(suffix, "tiff", file)
+    subprocess.check_call(["convert", "-quality", "100", file, to])
+    bar.update(bar.currval + 1)
+
+def main(argv):
+    target_dir = argv[0]
+    suffix = argv[1]
+    files = glob.glob(target_dir + "/*" + suffix)
+    pbar = ProgressBar(maxval=len(files), widgets=widgets).start()
+    for f in files:
+        proc(f, pbar, suffix)
+
+main(sys.argv[1:])
+
