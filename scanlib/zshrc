@@ -81,16 +81,22 @@ if [ "$OS" = "CYGWIN_NT-5.1" -o "$OS" = "CYGWIN_NT-6.0" ] ; then
     if [ ! -e $HOME/.zshrc.cygwin ]; then
         echo loading cygwin setup file ...
         source $HOME/.zshrc.cygwin
+    else
+        echo no cygwin setup file
     fi
 elif [ "$OS" = "Linux" ] ; then
     if [ ! -e $HOME/.zshrc.linux ]; then
         echo loading linux setup file ...
         source $HOME/.zshrc.linux
+    else
+        echo no linux setup file
     fi
 elif [ "$OS" = "Darwin" ] ; then
     if [ ! -e $HOME/.zshrc.darwin ]; then
         echo loading darwin setup file ...
         source $HOME/.zshrc.darwin
+    else
+        echo no darwin setup file
     fi
 fi
 
