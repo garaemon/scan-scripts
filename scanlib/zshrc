@@ -40,6 +40,7 @@ SPROMPT="%r? べ, 別にあんたのために修正したんじゃないんだ�
 HISTFILE=$HOME/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
+
 setopt hist_ignore_dups     # ignore duplication command history list
 setopt share_history        # share command history data
 bindkey -e
@@ -60,7 +61,6 @@ alias ls='\ls -GF'
 alias cp='cp -v'
 alias mv='mv -v'
 alias grep='grep --color=auto'
-alias pc-sync="sync.scm"
 
 #ssh-agent
 echo -n "ssh-agent: "
@@ -80,27 +80,29 @@ fi
 # load each architecture settings ...
 #cygwin load
 if [ "$OS" = "CYGWIN_NT-5.1" -o "$OS" = "CYGWIN_NT-6.0" ] ; then
-    echo loading cygwin setup file ...
-    source $HOME/.zshrc.cygwin
+    if [ ! -e $HOME/.zshrc.cygwin ]; then
+        echo loading cygwin setup file ...
+        source $HOME/.zshrc.cygwin
+    fi
 elif [ "$OS" = "Linux" ] ; then
-    echo loading linux setup file ...
-    source $HOME/.zshrc.linux
+    if [ ! -e $HOME/.zshrc.linux ]; then
+        echo loading linux setup file ...
+        source $HOME/.zshrc.linux
+    fi
 elif [ "$OS" = "Darwin" ] ; then
-    echo loading darwin setup file ...
-    source $HOME/.zshrc.darwin
+    if [ ! -e $HOME/.zshrc.darwin ]; then
+        echo loading darwin setup file ...
+        source $HOME/.zshrc.darwin
+    fi
 fi
 
 alias slime="emacs -f slime"
 
+# for emacs-settings
 export PATH=$PATH:$HOME/gprog/emacs-settings
 # source ~/.zshrc.ros
 # VERSIONER_PYTHON_PREFER_32_BIT=yes
-export PATH=$PATH:$HOME/gprog
 
-export CLASSPATH=$CLASSPATH:$HOME/gprog/ditaa/trunk
 
 alias rm='trash-put -v'
 
-export PATH=$PATH:$HOME/gprog/glc/bin
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/gprog/glc/lib
-export PATH=$HOME/gprog/depot_tools:"$PATH"
