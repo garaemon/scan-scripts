@@ -1,6 +1,6 @@
 from opencv import cv
 from opencv import highgui
-import Image
+import Image                    # PIL
 import os
 
 def load_image(file):
@@ -8,7 +8,7 @@ def load_image(file):
     loading image from file and return a PIL image object.
     """
     return Image.open(os.path.abspath(file))
-    
+
 def extract_color(image,
                   h_min = 0, h_max = 255,
                   s_min = 0, s_max = 255,
@@ -27,4 +27,10 @@ def extract_color(image,
             else:
                 ret_pix[x, y] = (0, 0, 0)
     return ret
-    
+
+def edge_detection(image):
+    # NOT IMPLEMENTED
+    # convert to OpenCV
+    # canny
+    # hough
+    return True
