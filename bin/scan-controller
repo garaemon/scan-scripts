@@ -5,6 +5,6 @@ import scanlib.gui
 
 if __name__ == "__main__":
     app = wx.App()
-    scanlib.gui.ScanController(False, -1, "hello")
+    scanlib.gui.ScanController(None, "hello")
     app.MainLoop()
 
