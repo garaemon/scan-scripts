@@ -1,47 +1,14 @@
 from wx import *
 
-class ColorController(wx.Frame):
-    def __init__(self, parent, title):
-        wx.Frame.__init__(self, parent, title=title, size=(-1,300))
-        slider_flag = wx.SL_HORIZONTAL | wx.SL_AUTOTICKS | wx.SL_LABELS
-        self.slider1 = wx.Slider(self, -1, 50, 0, 255,
-                                 size = (300, -1),
-                                 style = slider_flag)
-        self.slider2 = wx.Slider(self, -1, 50, 0, 255,
-                                 size = (300, -1),
-                                 style = slider_flag)
-        self.slider3 = wx.Slider(self, -1, 50, 0, 255,
-                                 size = (300, -1),
-                                 style = slider_flag)
-        self.slider4 = wx.Slider(self, -1, 50, 0, 255,
-                                 size = (300, -1),
-                                 style = slider_flag)
-        self.slider5 = wx.Slider(self, -1, 50, 0, 255,
-                                 size = (300, -1),
-                                 style = slider_flag)
-        self.slider6 = wx.Slider(self, -1, 50, 0, 255,
-                                 size = (300, -1),
-                                 style = slider_flag)
-        
-        self.sizer = wx.BoxSizer(wx.VERTICAL)
-        self.sizer.Add(self.slider1, 0, wx.EXPAND)
-        self.sizer.Add(self.slider2, 0, wx.EXPAND)
-        self.sizer.Add(self.slider3, 0, wx.EXPAND)
-        self.sizer.Add(self.slider4, 0, wx.EXPAND)
-        self.sizer.Add(self.slider5, 0, wx.EXPAND)
-        self.sizer.Add(self.slider6, 0, wx.EXPAND)
-        self.SetSizer(self.sizer)
-        self.SetAutoLayout(1)
-        self.sizer.Fit(self)
-
 class ScanController(wx.Frame):
     dirname = ''
+    _slider_var = {}
     def __init__(self, parent, title):
         wx.Frame.__init__(self, parent, title=title, size=(200,100))
-
+        
+        
+        hsv_bar = self.make_hsv_sliders("parameters for color extraction")
         # buttons
-        self.color_control_button = wx.Button(self, -1, "color control")
-        self.color_controller = ColorController(self, "color parameter")
         self.run_button = wx.Button(self, -1, "run")
         self.quit_button = wx.Button(self, -1, "Quit")
         
@@ -62,21 +29,50 @@ class ScanController(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnExit, menuExit)
         self.Bind(wx.EVT_MENU, self.OnAbout, menuAbout)
         self.Bind(wx.EVT_BUTTON, self.OnExit, self.quit_button)
-        self.Bind(wx.EVT_BUTTON, self.color_control_cb,
-                  self.color_control_button)
         
         #sizer
         self.sizer = wx.BoxSizer(wx.VERTICAL)
-        self.sizer.Add(self.color_control_button, 2, wx.EXPAND)
+        #self.sizer.Add(self.slider1, 0, wx.EXPAND)
+        self.sizer.Add(hsv_bar, 0, wx.EXPAND)
         self.sizer.Add(self.run_button, 1, wx.EXPAND)
         self.sizer.Add(self.quit_button, 0, wx.EXPAND)
         self.SetSizer(self.sizer)
         self.SetAutoLayout(1)
         self.sizer.Fit(self)
         self.Show(True)
-    def color_control_cb(self, e):
-        self.color_controller.Show(True)
-        
+    # hsv
+    def make_hsv_sliders(self, text):
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        slider_text = wx.StaticText(self, -1, text)
+        slider_flag = wx.SL_HORIZONTAL | wx.SL_AUTOTICKS | wx.SL_LABELS
+        slider_h_max = self.make_a_bar("h_max", slider_flag)
+        slider_h_min = self.make_a_bar("h_min", slider_flag)
+        slider_s_max = self.make_a_bar("s_max", slider_flag)
+        slider_s_min = self.make_a_bar("s_min", slider_flag)
+        slider_v_max = self.make_a_bar("v_max", slider_flag)
+        slider_v_min = self.make_a_bar("v_min", slider_flag)
+        sizer.Add(slider_text, 0, wx.EXPAND)
+        sizer.Add(slider_h_max, 0, wx.EXPAND)
+        sizer.Add(slider_h_min, 0, wx.EXPAND)
+        sizer.Add(slider_s_max, 0, wx.EXPAND)
+        sizer.Add(slider_s_min, 0, wx.EXPAND)
+        sizer.Add(slider_v_max, 0, wx.EXPAND)
+        sizer.Add(slider_v_min, 0, wx.EXPAND)
+        return sizer
+    # callbacks
+    def make_a_bar(self, atext, slider_flag):
+        sizer = wx.BoxSizer(wx.HORIZONTAL)
+        text = wx.StaticText(self, -1, atext)
+        slider = wx.Slider(self, -1, 50, 0, 255,
+                           size = (300, -1),
+                           style = slider_flag)
+        sizer.Add(text, 0, wx.EXPAND)
+        sizer.Add(slider, 0, wx.EXPAND)
+        def local_func(evt):
+            self._slider_var[atext] = slider.GetValue()
+            print self._slider_var
+        slider.Bind(wx.EVT_SLIDER, local_func)
+        return sizer
     def OnAbout(self,e):
         # Create a message dialog box
         dlg = wx.MessageDialog(self,
@@ -86,7 +82,6 @@ class ScanController(wx.Frame):
                                "About scan-controller", wx.OK)
         dlg.ShowModal() # Shows it
         dlg.Destroy() # finally destroy it when finished.
-
     def OnExit(self,e):
         self.Close(True)
     def OnOpen(self,e):
