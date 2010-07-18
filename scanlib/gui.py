@@ -1,4 +1,5 @@
 from wx import *
+import os
 
 class ScanController(wx.Frame):
     dirname = ''
@@ -82,16 +83,13 @@ class ScanController(wx.Frame):
                                "About scan-controller", wx.OK)
         dlg.ShowModal() # Shows it
         dlg.Destroy() # finally destroy it when finished.
-    def OnExit(self,e):
+    def OnExit(self, e):
         self.Close(True)
-    def OnOpen(self,e):
+    def OnOpen(self, e):
         """ Open a file"""
         dlg = wx.FileDialog(self, "Choose a file",
-                            self.dirname, "", "*.*", wx.OPEN)
+                            self.dirname, "", "*.*", wx.OPEN | wx.MULTIPLE)
         if dlg.ShowModal() == wx.ID_OK:
-            self.filename = dlg.GetFilename()
-            self.dirname = dlg.GetDirectory()
-            f = open(os.path.join(self.dirname, self.filename), 'r')
-            self.control.SetValue(f.read())
-            f.close()
+            path = dlg.GetPaths()
+            print path
         dlg.Destroy()
