@@ -29,6 +29,7 @@ class PILImageFrame(wx.Frame):
 class ImageContainer(object):
     _path = False
     _org_image = False                  # PIL Image
+    _binary_image = False
     _showedp = False
     def __init__(self, path):
         self._path = path
@@ -42,6 +43,11 @@ class ImageContainer(object):
         f.Show()
     def showedp(self):
         return self._showedp
+    def binalize(self, h_min, h_max, s_min, s_max, v_min, v_max):
+        self._binary_image = extract_color(self._org_image, h_min, h_max,
+                                           s_min, s_max, v_min, v_max)
+        f = PILImageFrame(self._binary_image)
+        f.Show()
     
 def load_image(file):
     """
@@ -50,15 +56,16 @@ def load_image(file):
     return Image.open(os.path.abspath(file))
 
 def extract_color(image,
-                  h_min = 0, h_max = 255,
-                  s_min = 0, s_max = 255,
-                  v_min = 0, v_max = 255):
+                  h_min = 0, h_max = 360,
+                  s_min = 0, s_max = 1.0,
+                  v_min = 0, v_max = 1.0):
     ret = image.copy()
     pix = image.load()
     ret_pix = ret.load()
     for x in range(image.size[0]):
         for y in range(image.size[1]):
             pixel = pix[x, y]
+            hsv_pixel = RGB2HSV(pix[0], pix[1], pix[2])
             h = pixel[0]
             s = pixel[1]
             v = pixel[2]
@@ -72,3 +79,68 @@ def edge_detection(image):
     # canny
     # hough
     return True
+
+# RGB -> HSV
+# R, G, B, S, V -> 0 ~ 1
+# h -> 0 ~ 360
+def RGB2HSV( r, g, b ):
+    r, g, b = map( float, (r,g,b ) )
+    if r == g and g == b:
+        ma = r
+        mi = r
+        h = 0
+        v = r
+    elif r > g and r > b:
+        ma = r
+        mi = min( g , b )
+        h = 60 * ( g - b ) / ( ma - mi ) + 0
+    elif g > b and g >= r:
+        ma = g
+        mi = min( b , r )
+        h = 60 * ( b - r ) / ( ma - mi ) + 120
+    elif b >= r and b >= g:
+        ma = b
+        mi = min( r , g )
+        h = 60 * ( r - g ) / ( ma - mi ) + 240
+    else:
+        raise Exception("error")
+    if ma == 0:
+        return 0, 0, 0
+    s = (ma - mi) / ma
+    v = ma
+    return h, s, v
+
+# HSV -> RGB
+def HSV2RGB( h, s, v ):
+    hi = int(h / 60) % 6
+    f = h / 60 - hi
+    p = v * ( 1 - s )
+    q = v * ( 1 - f * s )
+    t = v * ( 1 - ( 1 - f ) * s )
+
+    if hi == 0:
+        r = int(round( v ))
+        g = int(round( t ))
+        b = int(round( p ))
+    elif hi == 1:
+        r = int(round( q ))
+        g = int(round( v ))
+        b = int(round( p ))
+    elif hi == 2:
+        r = int(round( p ))
+        g = int(round( v ))
+        b = int(round( t ))
+    elif hi == 3:
+        r = int(round( p ))
+        g = int(round( q ))
+        b = int(round( v ))
+    elif hi == 4:
+        r = int(round( t ))
+        g = int(round( p ))
+        b = int(round( v ))
+    elif hi == 5:
+        r = int(round( v ))
+        g = int(round( p ))
+        b = int(round( q ))
+
+    return r, g, b
