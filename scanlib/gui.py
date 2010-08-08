@@ -1,9 +1,11 @@
 from wx import *
 import os
+from image import *
 
 class ScanController(wx.Frame):
     dirname = ''
     _slider_var = {}
+    _files = []
     def __init__(self, parent, title):
         wx.Frame.__init__(self, parent, title=title, size=(200,100))
         
@@ -90,6 +92,8 @@ class ScanController(wx.Frame):
         dlg = wx.FileDialog(self, "Choose a file",
                             self.dirname, "", "*.*", wx.OPEN | wx.MULTIPLE)
         if dlg.ShowModal() == wx.ID_OK:
-            path = dlg.GetPaths()
-            print path
+            self._files = dlg.GetPaths()
+            print self._files
+            i = ImageContainer(self._files[0])
+            i.show()
         dlg.Destroy()
