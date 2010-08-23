@@ -3,11 +3,19 @@ from opencv import highgui
 import Image                    # PIL
 import os
 import wx
+import math
 
-def pilToImage(pil):
+def pilTowxImage(pil):
+    "convert a PIL image to wxImage"
     wximage = wx.EmptyImage(pil.size[0], pil.size[1])
     wximage.SetData(pil.convert('RGB').tostring())
     return wximage
+
+def wxImageToPil(wximage):
+    "convert a wxImage to PIL image"
+    pil = Image.new('RGB', (wximage.GetWidth(), wximage.GetHeight()))
+    pil.fromstring(wximage.GetData())
+    return pil
 
 class PILImageFrame(wx.Frame):
     """ a class for display a PIL image.
@@ -69,7 +77,8 @@ def extract_color(image,
             h = pixel[0]
             s = pixel[1]
             v = pixel[2]
-            if h < h_min or h > h_max or s < s_min or s < s_max or v < v_min or v > v_max:
+            if h < h_min or h > h_max or s < s_min \
+                    or s < s_max or v < v_min or v > v_max:
                 ret_pix[x, y] = (0, 0, 0)
     return ret
 
@@ -112,35 +121,38 @@ def RGB2HSV( r, g, b ):
 
 # HSV -> RGB
 def HSV2RGB( h, s, v ):
-    hi = int(h / 60) % 6
-    f = h / 60 - hi
-    p = v * ( 1 - s )
-    q = v * ( 1 - f * s )
-    t = v * ( 1 - ( 1 - f ) * s )
-
+    hi = math.floor(h / 60.0) % 6
+    f =  (h / 60.0) - math.floor(h / 60.0)
+    p = v * (1.0 - s)
+    q = v * (1.0 - (f*s))
+    t = v * (1.0 - ((1.0 - f) * s))
     if hi == 0:
-        r = int(round( v ))
-        g = int(round( t ))
-        b = int(round( p ))
+        return (v, t, p)
     elif hi == 1:
-        r = int(round( q ))
-        g = int(round( v ))
-        b = int(round( p ))
+        return (q, v, p)
     elif hi == 2:
-        r = int(round( p ))
-        g = int(round( v ))
-        b = int(round( t ))
+        return (q, v, t)
     elif hi == 3:
-        r = int(round( p ))
-        g = int(round( q ))
-        b = int(round( v ))
+        return (p, q, v)
     elif hi == 4:
-        r = int(round( t ))
-        g = int(round( p ))
-        b = int(round( v ))
+        return (t, p, v)
     elif hi == 5:
-        r = int(round( v ))
-        g = int(round( p ))
-        b = int(round( q ))
+        return (v, p, q)
 
-    return r, g, b
+def HSVPILImage(h, s, v, width, height):
+    "make a PIL image from HSV value and width, height."
+    ret = Image.new('RGB', (width, height))
+    pix = ret.load()
+    r, g, b = HSV2RGB(h, s, v)
+    r *= 255.0
+    g *= 255.0
+    b *= 255.0
+    for x in range(width):
+        for y in range(height):
+            pix[x, y] = (r, g, b)
+    return ret
+
+def HSVwxImage(h, s, v, width, height):
+    "make a wx.Image from HSV value and width and height."
+    pil = HSVPILImage(h, s, v, width, height)
+    return pilTowxImage(pil)
