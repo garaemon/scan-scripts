@@ -8,7 +8,6 @@ class HSVColorController(wx.BoxSizer):
     def __init__(self, parent):
         self._parent = parent
         wx.BoxSizer.__init__(self, wx.VERTICAL)
-        #wx.Frame.__init__(self, parent, title=title, size=(200,100))
         # hsv bar
         hsv_bar = self.makeHSVSliders("parameters for color extraction")
         min_color_image =  wx.EmptyImage(30, 30)
@@ -29,16 +28,17 @@ class HSVColorController(wx.BoxSizer):
         self.Add(self._min_max_sizer, 0, wx.EXPAND)
         self.Add(hsv_bar, 0, wx.EXPAND)
         self.Fit(self._parent)
+        self.update_min_max_image()
     def update_min_max_image(self):
         """
         update self.min_bitmap and self.max_bitmap from
         self._slider_var.
         """
-        min_image = HSVwxImage(self._slider_var['h_min'] / 255.0 * 360,
+        min_image = HSVwxImage(self._slider_var['h_min'] / 255.0,
                                self._slider_var['s_min'] / 255.0,
                                self._slider_var['v_min'] / 255.0,
                                30, 30)
-        max_image = HSVwxImage(self._slider_var['h_max'] / 255.0 * 360,
+        max_image = HSVwxImage(self._slider_var['h_max'] / 255.0,
                                self._slider_var['s_max'] / 255.0,
                                self._slider_var['v_max'] / 255.0,
                                30, 30)
@@ -49,14 +49,14 @@ class HSVColorController(wx.BoxSizer):
         sizer = wx.BoxSizer(wx.VERTICAL)
         slider_text = wx.StaticText(self._parent, -1, text)
         slider_flag = wx.SL_HORIZONTAL | wx.SL_AUTOTICKS | wx.SL_LABELS
-        slider_h_max = self.makeBar("h_max", slider_flag, 255, 147)
-        slider_h_min = self.makeBar("h_min", slider_flag, 255, 130)
+        slider_h_max = self.makeBar("h_max", slider_flag, 255, 170)
+        slider_h_min = self.makeBar("h_min", slider_flag, 255, 90)
         slider_s_max = self.makeBar("s_max", slider_flag,
-                                       initial_value = 157)
+                                       initial_value = 40)
         slider_s_min = self.makeBar("s_min", slider_flag,
-                                       initial_value = 121)
+                                       initial_value = 0)
         slider_v_max = self.makeBar("v_max", slider_flag,
-                                       initial_value = 255)
+                                       initial_value = 245)
         slider_v_min = self.makeBar("v_min", slider_flag,
                                        initial_value = 220)
         sizer.Add(slider_text, 0, wx.EXPAND)
@@ -90,13 +90,13 @@ class HSVColorController(wx.BoxSizer):
         using current HSV parameters.
         """
         i = ImageContainer(fname)
-        i.Binalize(self._slider_var['h_min'],
-                   self._slider_var['h_max'],
-                   self._slider_var['s_min'],
-                   self._slider_var['s_max'],
-                   self._slider_var['v_min'],
-                   self._slider_var['v_max'])
-        i.show()
+        i.Binalize(self._slider_var['h_min'] / 255.0,
+                   self._slider_var['h_max'] / 255.0,
+                   self._slider_var['s_min'] / 255.0,
+                   self._slider_var['s_max'] / 255.0,
+                   self._slider_var['v_min'] / 255.0,
+                   self._slider_var['v_max'] / 255.0)
+        i.Show()
         
         
 class ScanController(wx.Frame):
