@@ -1,6 +1,12 @@
-from opencv import cv
-from opencv import highgui
-import Image                    # PIL
+import platform
+arch = platform.system()
+if arch == "Linux":
+    from opencv import cv
+    from opencv import highgui
+    import Image                    # PIL
+elif arch == "Darwin":
+    import cv
+    from PIL import Image
 import os
 import wx
 import math
@@ -24,7 +30,7 @@ class PILImageFrame(wx.Frame):
         
         self._pilimage = pilimage
         #orgimage = pilToImage(self._pilimage).ConvertToBitmap()
-        orgimage = pilToImage(self._pilimage)
+        orgimage = pilTowxImage(self._pilimage)
         #wx.StaticBitmap(self, -1, self._image)
         org_size = orgimage.GetSize()
         scaled_size = (width, int(width / float(org_size[0]) * org_size[1]))
@@ -42,16 +48,15 @@ class ImageContainer(object):
     def __init__(self, path):
         self._path = path
         #self._org_image = load_image(path)
-    def show(self):
+    def Show(self):
         self._showedp = True
         if not self._org_image:
             self._org_image = load_image(self._path)
         f = PILImageFrame(self._org_image)
-        #f.show()
         f.Show()
-    def showedp(self):
+    def Showedp(self):
         return self._showedp
-    def binalize(self, h_min, h_max, s_min, s_max, v_min, v_max):
+    def Binalize(self, h_min, h_max, s_min, s_max, v_min, v_max):
         self._binary_image = extract_color(self._org_image, h_min, h_max,
                                            s_min, s_max, v_min, v_max)
         f = PILImageFrame(self._binary_image)
@@ -149,7 +154,7 @@ def HSVPILImage(h, s, v, width, height):
     b *= 255.0
     for x in range(width):
         for y in range(height):
-            pix[x, y] = (r, g, b)
+            pix[x, y] = (round(r), round(g), round(b))
     return ret
 
 def HSVwxImage(h, s, v, width, height):
