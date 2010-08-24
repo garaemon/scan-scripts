@@ -49,16 +49,16 @@ class HSVColorController(wx.BoxSizer):
         sizer = wx.BoxSizer(wx.VERTICAL)
         slider_text = wx.StaticText(self._parent, -1, text)
         slider_flag = wx.SL_HORIZONTAL | wx.SL_AUTOTICKS | wx.SL_LABELS
-        slider_h_max = self.makeBar("h_max", slider_flag, 255, 255)
-        slider_h_min = self.makeBar("h_min", slider_flag, 255, 0)
+        slider_h_max = self.makeBar("h_max", slider_flag, 255, 147)
+        slider_h_min = self.makeBar("h_min", slider_flag, 255, 130)
         slider_s_max = self.makeBar("s_max", slider_flag,
-                                       initial_value = 255.0)
+                                       initial_value = 157)
         slider_s_min = self.makeBar("s_min", slider_flag,
-                                       initial_value = 0.0)
+                                       initial_value = 121)
         slider_v_max = self.makeBar("v_max", slider_flag,
-                                       initial_value = 255.0)
+                                       initial_value = 255)
         slider_v_min = self.makeBar("v_min", slider_flag,
-                                       initial_value = 0.0)
+                                       initial_value = 220)
         sizer.Add(slider_text, 0, wx.EXPAND)
         sizer.Add(slider_h_max, 0, wx.EXPAND)
         sizer.Add(slider_h_min, 0, wx.EXPAND)
