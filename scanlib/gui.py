@@ -84,7 +84,21 @@ class HSVColorController(wx.BoxSizer):
             return
         slider.Bind(wx.EVT_SLIDER, local_func)
         return sizer
-
+    def TryColorExtract(self, fname):
+        """
+        this function take a path to a image file and do color extraction
+        using current HSV parameters.
+        """
+        i = ImageContainer(fname)
+        i.Binalize(self._slider_var['h_min'],
+                   self._slider_var['h_max'],
+                   self._slider_var['s_min'],
+                   self._slider_var['s_max'],
+                   self._slider_var['v_min'],
+                   self._slider_var['v_max'])
+        i.show()
+        
+        
 class ScanController(wx.Frame):
     dirname = ''
     _files = []
@@ -93,11 +107,12 @@ class ScanController(wx.Frame):
         # initialize
         # color indicator
         self._hsv = HSVColorController(self)
+        self._test_color_extract_button = wx.Button(self,
+                                                    -1,
+                                                    "Test Color Extract")
         # buttons
         self.run_button = wx.Button(self, -1, "run")
-        self.tezt_color_extract_button = wx.Button(self,
-                                                   -1,
-                                                   "Test Color Extract")
+        
         self.quit_button = wx.Button(self, -1, "Quit")
         
         # menu bar
@@ -117,13 +132,13 @@ class ScanController(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnExit, menuExit)
         self.Bind(wx.EVT_MENU, self.OnAbout, menuAbout)
         self.Bind(wx.EVT_BUTTON, self.OnExit, self.quit_button)
-        self.Bind(wx.EVT_BUTTON, self.ColorExtract, self.color_extract_button)
+        self.Bind(wx.EVT_BUTTON, self.testColorExtract,
+                  self._test_color_extract_button)
         
         #sizer
         self.sizer = wx.BoxSizer(wx.VERTICAL)
-        #self.sizer.Add(self.slider1, 0, wx.EXPAND)
-        self.sizer.Add(hsv, 1, wx.EXPAND)
-        self.sizer.Add(self.color_extract_button, 1, wx.EXPAND)
+        self.sizer.Add(self._hsv, 1, wx.EXPAND)
+        self.sizer.Add(self._test_color_extract_button, 1, wx.EXPAND)
         self.sizer.Add(self.run_button, 1, wx.EXPAND)
         self.sizer.Add(self.quit_button, 0, wx.EXPAND)
         self.SetSizer(self.sizer)
@@ -131,15 +146,13 @@ class ScanController(wx.Frame):
         self.sizer.Fit(self)
         self.Show(True)
     # callbacks
-    def ColorExtract(self, e):
-        # h -> 0 ~ 360 (no scaling)
-        # s, v -> 0 ~ 1.0 (scale by 255)
-        scaled_param = copy.deepcopy(self._slider_var)
-        for v in ['s_min', 's_max', 'v_min', 'v_max']:
-            scaled_param[v] /= 255.0
-        i = ImageContainer(self._files[0])
-        i.binalize(*scaled_param)
-        print scaled_param
+    def testColorExtract(self, e):
+        """
+        this callback is bound to test_color_extract_button.
+        """
+        if len(self._files) >= 1:
+            test_file = self._files[0]
+            self._hsv.TryColorExtract(test_file)
     def OnAbout(self, e):
         # Create a message dialog box
         dlg = wx.MessageDialog(self,
@@ -157,7 +170,7 @@ class ScanController(wx.Frame):
                             self.dirname, "", "*.*", wx.OPEN | wx.MULTIPLE)
         if dlg.ShowModal() == wx.ID_OK:
             self._files = dlg.GetPaths()
-            print self._files
-            i = ImageContainer(self._files[0])
-            i.show()
+            #print self._files
+            #i = ImageContainer(self._files[0])
+            #i.show()
         dlg.Destroy()
