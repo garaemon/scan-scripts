@@ -154,7 +154,7 @@ def HSVPILImage(h, s, v, width, height):
     b *= 255.0
     for x in range(width):
         for y in range(height):
-            pix[x, y] = (round(r), round(g), round(b))
+            pix[x, y] = (int(round(r)), int(round(g)), int(round(b)))
     return ret
 
 def HSVwxImage(h, s, v, width, height):
